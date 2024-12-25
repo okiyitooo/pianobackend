@@ -1,0 +1,223 @@
+# Piano App Backend - Spring Boot
+
+This README provides a guide for developers to understand, set up, and contribute to the backend of the Piano App. The backend is built using Spring Boot and leverages Spring Data MongoDB, Spring Security, and JWT.
+
+## Table of Contents
+
+1. [Introduction](#1-introduction)
+2. [Project Setup](#2-project-setup)
+    * [Prerequisites](#prerequisites)
+    * [Cloning and Building](#cloning-and-building)
+3. [Project Structure](#3-project-structure)
+4. [Key Technologies](#4-key-technologies)
+5. [API Endpoints](#5-api-endpoints)
+    * [Authentication Endpoints](#authentication-endpoints)
+    * [User Endpoints](#user-endpoints)
+    * [Piano Endpoints](#piano-endpoints)
+    * [Purchase Endpoints](#purchase-endpoints)
+6. [Data Models](#6-data-models)
+7. [Authentication and Security](#7-authentication-and-security)
+8. [Error Handling](#8-error-handling)
+9. [Environment Variables](#9-environment-variables)
+10. [Validation](#10-validation)
+11. [Testing](#11-testing)
+12. [Contributing](#12-contributing)
+13. [Contact](#13-contact)
+
+## 1. Introduction
+
+The Piano App backend is a RESTful API built with Spring Boot. It provides the core logic and data access layer for the Piano App, allowing users to manage user accounts, browse pianos, purchase pianos, and get purchase history.
+
+## 2. Project Setup
+
+### Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+* Java Development Kit (JDK) 17 or higher
+* Maven
+* MongoDB
+* A configured Spring Boot friendly IDE such as IntelliJ or VSCode
+
+### Cloning and Building
+
+1. **Clone the Repository:** Clone the project from its git repository
+
+    ```bash
+    git clone <repository url>
+    ```
+
+2. **Navigate to the project directory:**
+
+    ```bash
+    cd piano-backend
+    ```
+
+3. **Build the Application:**
+
+    ```bash
+    mvn clean install
+    ```
+
+4. **Run the Application:**
+
+    ```bash
+    mvn spring-boot:run
+    ```
+
+## 3. Project Structure
+
+Here is a description of the project layout:
+
+```
+piano-backend/
+├── src/main/java/
+│   └── com/example/pianobackend/
+│       ├── config/           # Security configuration
+│       │   ├── SecurityConfig.java
+│       │   ├── JwtService.java
+│       │   ├── JwtAuthFilter.java
+│       │   └── UserDetailsServiceImpl.java
+│       ├── controller/       # REST Controllers
+│       │   ├── AuthController.java
+│       │   ├── PianoController.java
+│       │   ├── UserController.java
+│       │   └── PurchaseController.java
+│       ├── model/            # MongoDB Models
+│       │   ├── User.java
+│       │   ├── Piano.java
+│       │   ├── KeyboardPiano.java
+│       │   └── Purchase.java
+│       ├── repository/       # MongoDB Repositories
+│       │   ├── UserRepository.java
+│       │   ├── PianoRepository.java
+│       │   └── PurchaseRepository.java
+│       ├── service/          # Business Logic
+│       │   ├── AuthService.java
+│       │   ├── PianoService.java
+│       │   ├── UserService.java
+│       │   └── PurchaseService.java
+│       ├── exception/
+│       │   ├── GlobalExceptionHandler.java
+│       │   ├── InvalidCredentialsException.java
+│       │   ├── PianoNotFoundException.java
+│       │   ├── UserAlreadyExistsException.java
+│       │   └── UserNotFoundException.java
+│       ├── dto/              # Data Transfer Objects
+│       │   ├── AuthResponse.java
+│       │   ├── UserDTO.java
+│       │   ├── PianoDTO.java
+│       │   ├── UserLoginDTO.java
+│       │   └── PurchaseDTO.java
+│       ├── PianoBackendApplication.java # Main entry point
+│       └── utils/            # Utility Classes
+│           └── ValidationUtils.java
+├── src/main/resources/
+│   └── application.properties  # Configuration
+```
+
+- **config/**: Contains configuration classes such as the security setup with JWT and user details service.
+- **controller/**: Contains REST controllers that handle API endpoints and requests, calling relevant service methods.
+- **model/**: Contains your database model definitions which represent data structures and how the database documents are structured.
+- **repository/**: Contains Spring Data MongoDB repository interfaces for database operations.
+- **service/**: Contains the business logic for the application which use repository objects and provide data to the controllers.
+- **exception/**: Contains custom exceptions for specific scenarios.
+- **dto/**: Contains data transfer objects for sending and receiving data from the backend.
+- **utils/**: Contains helper classes that support various functions in your application.
+
+## 4. Key Technologies
+
+- **Spring Boot**: Framework for building stand-alone Java applications with minimal setup.
+- **Spring Data MongoDB**: Used for interacting with the MongoDB database.
+- **Spring Security**: Framework for authentication and security.
+- **Java JWT**: Library for creating and validating JSON Web Tokens (JWT).
+- **Lombok**: Java library to reduce boilerplate code.
+- **ModelMapper**: A library that provides automatic and convenient mappings between model objects.
+- **Jakarta Validation API**: API for handling validation.
+- **Maven**: Build system for building and packaging your Java projects.
+
+## 5. API Endpoints
+
+The backend exposes the following API endpoints:
+
+### Authentication Endpoints
+
+- **POST /auth/signup**: Registers a new user. Requires firstName, lastName, email, phoneNumber, sex, and password in the request body.
+- **POST /auth/login**: Logs in an existing user. Requires email and password in the request body. Returns a JWT.
+- **POST /auth/logout**: Logs out the user, invalidating JWT.
+
+### User Endpoints
+
+- **GET /users**: Retrieves a list of all users (protected by authentication).
+- **GET /users/{id}**: Retrieves a single user by their ID (protected by authentication).
+- **PUT /users/{id}**: Updates the user associated with the id.
+- **DELETE /users/{id}**: Deletes a user associated with an id.
+
+### Piano Endpoints
+
+- **GET /pianos**: Retrieves a list of all pianos.
+- **GET /pianos/{id}**: Retrieves a single piano by its ID.
+- **POST /pianos**: Creates a new piano, accepts properties such as name, description, age, brand, type, and price. For keyboard types, requires a numberOfKeys property.
+- **PUT /pianos/{id}**: Updates a piano associated with the id.
+- **DELETE /pianos/{id}**: Deletes a piano by id.
+
+### Purchase Endpoints
+
+- **POST /purchases**: Creates a new purchase. Accepts userId, pianoId, and date properties.
+- **GET /purchases**: Retrieves all purchases.
+- **GET /purchases/{id}**: Retrieves a purchase by id.
+- **GET /purchases/users/{userId}**: Retrieves all purchases for the user associated with the given userId.
+- **DELETE /purchases/{id}**: Deletes a purchase by id.
+
+## 6. Data Models
+
+The project has the following data models:
+
+- **User**: Represents a user with properties: id, firstName, lastName, email, phoneNumber, sex, password, and purchases (list of purchase ids).
+- **Piano**: Represents a generic piano, with properties such as: id, name, description, age, brand, type, and price.
+- **KeyboardPiano**: A type of piano which extends Piano, and includes a numberOfKeys integer.
+- **Purchase**: Represents a purchase of a piano by a user, with properties such as id, userId, pianoId, and date.
+
+## 7. Authentication and Security
+
+The backend uses JWT (JSON Web Tokens) for authentication.
+
+- When a user logs in, the server returns a JWT.
+- Requests to protected API endpoints (specified in SecurityConfig.java) must include the JWT in the Authorization header.
+
+## 8. Error Handling
+
+The backend uses a global exception handler (GlobalExceptionHandler) for consistent error responses.
+
+- The exception handler maps exceptions to a standard error message and error status code.
+
+## 9. Environment Variables
+
+The following environment variables must be set:
+
+- **spring.data.mongodb.uri**: The connection URL for MongoDB.
+- **jwt.secret**: The key used to generate secure tokens. Should be a string with at least 32 characters.
+- **jwt.expiration**: How long a token is valid (in milliseconds).
+
+You can set these variables using a `.env` file, or by setting system variables.
+
+## 10. Validation
+
+The backend uses Jakarta Bean Validation to ensure all fields provided in HTTP requests meet their constraints.
+
+- The `ValidationUtils.java` provides a set of helper functions to perform custom validations.
+
+## 11. Testing
+
+You can test your Spring Boot application using a Java unit test framework called JUnit, and adding the `spring-boot-starter-test` dependency, or by using tools such as Postman or Insomnia to create HTTP requests.
+
+## 12. Contributing
+
+1. Fork the repository.
+2. Create a new branch for your feature.
+3. Make your changes.
+4. Create a pull request.
+
+## 13. Contact
+
+If you have any questions, please contact kanaetochi.okiyi@udc.edu.
