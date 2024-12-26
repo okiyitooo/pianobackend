@@ -9,6 +9,10 @@ import org.springframework.validation.FieldError;
 
 import com.kanaetochi.pianobackend.dto.PianoDTO;
 import com.kanaetochi.pianobackend.dto.UserDTO;
+import com.kanaetochi.pianobackend.exception.InvalidPasswordException;
+import com.kanaetochi.pianobackend.exception.InvalidEmailException;
+import com.kanaetochi.pianobackend.exception.InvalidNameException;
+import com.kanaetochi.pianobackend.exception.InvalidPianoException;
 
 @Component
 public class ValidationUtils {
@@ -23,7 +27,7 @@ public class ValidationUtils {
     public static void validatePassword(String password ){
         // passwords should be at least 8 characters long
         if (password.length() < 8)
-            throw new IllegalArgumentException("Password must be at least 8 characters long");
+            throw new InvalidPasswordException("Password must be at least 8 characters long");
         // passwords should contain at least 3 digits and 3 special characters
         int digits = 0;
         int specials = 0;
@@ -32,7 +36,7 @@ public class ValidationUtils {
             if (!Character.isLetterOrDigit(c)) specials++;
         }
         if (digits < 3 || specials < 3)
-            throw new IllegalArgumentException("Password must contain at least 3 digits and 3 special characters");
+            throw new InvalidPasswordException("Password must contain at least 3 digits and 3 special characters");
         // passwords should not have more than 3 consecutive repeating characters
         int count = 1;
         char prev = password.charAt(0);
@@ -40,7 +44,7 @@ public class ValidationUtils {
             if (password.charAt(i) == prev) {
                 count++;
                 if (count > 3)
-                    throw new IllegalArgumentException("Password should not have more than 3 consecutive repeating characters");
+                    throw new InvalidPasswordException("Password should not have more than 3 consecutive repeating characters");
             } else {
                 count = 1;
                 prev = password.charAt(i);
@@ -49,25 +53,25 @@ public class ValidationUtils {
     }
     public static void validateEmail(String email) {
         if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"))
-            throw new IllegalArgumentException("Invalid email address");
+            throw new InvalidEmailException("Invalid email address");
     }
     public static void validateUsername(String username) {
         if (!username.matches("^[a-zA-Z0-9._-]{3,}$"))
-            throw new IllegalArgumentException("Username must be at least 3 characters long and can only contain letters, numbers, underscores, and hyphens");
+            throw new InvalidNameException("Username must be at least 3 characters long and can only contain letters, numbers, underscores, and hyphens");
     }
     public static void validateName(String name) {
         if (!name.matches("^[a-zA-Z]{2,}$"))
-            throw new IllegalArgumentException("Name must be at least 2 characters long and can only contain letters");
+            throw new InvalidNameException("Name must be at least 2 characters long and can only contain letters");
     }
     public static void validatePiano(PianoDTO pianoDTO) {
         if (pianoDTO.getBrand() == null || pianoDTO.getBrand().isEmpty())
-            throw new IllegalArgumentException("Brand is required");
+            throw new InvalidPianoException("Brand is required");
         if (pianoDTO.getType() == null || pianoDTO.getType().isEmpty())
-            throw new IllegalArgumentException("Type is required");
+            throw new InvalidPianoException("Type is required");
         if (pianoDTO.getAge() < 0)
-            throw new IllegalArgumentException("Age must be a positive number");
+            throw new InvalidPianoException("Age must be a positive number");
         if (pianoDTO.getPrice() < 0)
-            throw new IllegalArgumentException("Price must be a positive number");
+            throw new InvalidPianoException("Price must be a positive number");
     }
     public static void validateUser(UserDTO userDTO) {
         validateName(userDTO.getFirstName());

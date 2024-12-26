@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.kanaetochi.pianobackend.config.JwtService;
@@ -26,14 +27,16 @@ public class AuthService {
     
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
     
     @Autowired
     public AuthService(UserRepository userRepository, JwtService jwtService,
-            AuthenticationManager authenticationManager, ModelMapper modelMapper) {
+            AuthenticationManager authenticationManager, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.modelMapper=modelMapper;
+        this.passwordEncoder=passwordEncoder;
     }
 
     public UserDTO signUp(UserDTO userDTO) {
@@ -46,7 +49,9 @@ public class AuthService {
         ValidationUtils.validateName(userDTO.getLastName());
         
         User user = modelMapper.map(userDTO, User.class);
-        userRepository.save(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User savedUser = userRepository.save(user);
+        userDTO.setId(savedUser.getId());
         return userDTO;
     }
 

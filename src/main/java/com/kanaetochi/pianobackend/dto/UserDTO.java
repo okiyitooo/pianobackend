@@ -15,7 +15,7 @@ public class UserDTO {
     private String firstName;
     @Email(message =  "Email should be valid")
     private String email;
-    @Pattern(regexp = "//d{10}", message = "Phone number should be 10 digits")
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number should be 10 digits long")
     private String phone;
     @NotEmpty(message = "sex cannot be empty")
     private String sex;

@@ -18,8 +18,12 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
-    @ExceptionHandler({InvalidCredentialsException.class, UserAlreadyExistsException.class, PianoNotFoundException.class, UserNotFoundException.class})
+    @ExceptionHandler({InvalidCredentialsException.class, UserAlreadyExistsException.class, PianoNotFoundException.class, UserNotFoundException.class, InvalidPianoException.class, InvalidEmailException.class, InvalidNameException.class, InvalidPasswordException.class, IllegalArgumentException.class})
     public ResponseEntity<String> handleCustomExceptions(RuntimeException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleExpiredJwtException(RuntimeException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_IMPLEMENTED);
     }
 }
